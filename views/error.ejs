@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <title><%= (typeof title !== 'undefined' && title ? title : 'Error') + ' — GlamBD' %></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+Bengali:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body class="min-h-screen flex flex-col" style="background: var(--bg); color: var(--ink);">
+
+  <main class="flex-1">
+<%
+  const _status = (typeof status !== 'undefined') ? Number(status) : NaN;
+  const _hasStatus = Number.isFinite(_status) && _status >= 400 && _status < 600;
+  const _title = (typeof title !== 'undefined' && title) ? title : 'Something went wrong';
+  const _message = (typeof message !== 'undefined' && message)
+    ? message
+    : (_hasStatus
+        ? 'We couldn\u2019t complete that request. Please try again.'
+        : 'The page you were looking for isn\u2019t here. Perhaps a fresh start.');
+%>
+
+<section class="container-page py-16 text-center max-w-2xl">
+  <p class="label-eyebrow justify-center"><span class="dot"></span> Error <%= _hasStatus ? _status : '' %></p>
+
+  <% if (_hasStatus) { %>
+    <h1 class="mt-5 brand-font text-6xl sm:text-7xl leading-none"><%= _status %></h1>
+  <% } else { %>
+    <h1 class="mt-5 brand-font text-5xl sm:text-6xl leading-none">Hmm.</h1>
+  <% } %>
+
+  <hr class="rule mt-7 mb-5 mx-auto" style="max-width: 160px;" />
+
+  <p class="brand-font text-2xl"><%= _title %></p>
+
+  <p class="mt-4 serif-quote text-lg mx-auto" style="color: var(--ink-soft); max-width: 32rem;">
+    <%= _message %>
+  </p>
+
+  <div class="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
+    <a href="/" class="btn btn-primary">
+      Back to shop
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+    </a>
+    <a href="/track" class="btn btn-ghost">Track an order</a>
+  </div>
+</section>
+  </main>
+
+</body>
+</html>

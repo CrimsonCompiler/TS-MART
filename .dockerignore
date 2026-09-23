@@ -1,0 +1,30 @@
+node_modules
+npm-debug.log*
+yarn-error.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# Local env — must NEVER end up in an image.
+.env
+.env.local
+.env.*.local
+
+# VCS / IDE / OS
+.git
+.gitignore
+.DS_Store
+.idea
+.vscode
+
+# Tests + coverage (no need to ship these in a prod image)
+__tests__
+coverage
+.nyc_output
+
+# Tooling we don't need in prod
+.puku-cli
+.puku
+scripts
+
+# README/deploy are nice to have but not essential in the image
+# (keep them — Render uses them for source browser)

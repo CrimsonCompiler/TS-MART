@@ -1,0 +1,74 @@
+<%- include('partials/header', { title: 'Order Confirmed — GlamBD' }) %>
+
+<section class="container-page py-10 max-w-3xl">
+  <%- include('partials/stepper', { step: 3 }) %>
+
+  <div class="mt-10 card p-8 sm:p-10 text-center">
+    <div class="mx-auto w-14 h-14 inline-flex items-center justify-center" style="background: var(--ink); color: #fff;">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+    </div>
+
+    <p class="label-eyebrow mt-6 justify-center"><span class="dot"></span> Order placed</p>
+    <h1 class="mt-2 brand-font text-3xl sm:text-4xl">Thank you, <%= order.customer.name %>.</h1>
+    <p class="serif-quote text-lg mt-3" style="color: var(--ink-soft);">Your order is in good hands — we'll let you know when it moves.</p>
+
+    <div class="mt-7 inline-flex items-center gap-3 px-5 py-3 card" style="background: var(--bg-alt);">
+      <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">Order</span>
+      <code id="orderNumber" class="brand-font text-lg"><%= order.orderNumber %></code>
+      <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('orderNumber').innerText); this.innerText='Copied'" class="mono text-[10px] tracking-[0.2em] uppercase underline-offset-4 hover:underline" style="color: var(--ink-muted);">Copy</button>
+    </div>
+  </div>
+
+  <div class="mt-6 card p-8">
+    <div class="grid sm:grid-cols-2 gap-8">
+      <div>
+        <p class="label-eyebrow mb-3"><span class="dot"></span> Delivery address</p>
+        <address class="not-italic text-sm leading-relaxed" style="color: var(--ink);">
+          <%= order.customer.name %><br />
+          <%= order.customer.house %><br />
+          <%= order.customer.district %><br />
+          <%= order.customer.division %> — <%= order.customer.postcode %><br />
+          <%= order.customer.country %>
+          <hr class="rule my-3" />
+          <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">M</span> <%= order.customer.phone %><br />
+          <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">E</span> <%= order.customer.email %>
+        </address>
+      </div>
+
+      <div>
+        <p class="label-eyebrow mb-3"><span class="dot"></span> Items</p>
+        <ul class="text-sm divide-y" style="border-color: var(--line);">
+          <% order.items.forEach(function(item) { %>
+            <li class="py-2.5 flex justify-between gap-3">
+              <span><%= item.name %> <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">&times; <%= item.qty %></span></span>
+              <span class="whitespace-nowrap"><%= formatBDT(item.price * item.qty) %></span>
+            </li>
+          <% }); %>
+        </ul>
+        <hr class="rule my-3" style="border-color: var(--line);" />
+        <dl class="text-sm space-y-1.5">
+          <div class="flex justify-between"><dt class="muted">Subtotal</dt><dd><%= formatBDT(order.totalAmount - (order.shipping || 0)) %></dd></div>
+          <div class="flex justify-between">
+            <dt class="muted">Delivery <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">(<%= order.customer.division === 'Dhaka' ? 'inside Dhaka' : 'outside Dhaka' %>)</span></dt>
+            <dd><%= formatBDT(order.shipping || 0) %></dd>
+          </div>
+        </dl>
+        <hr class="rule my-3" style="border-color: var(--line);" />
+        <div class="flex justify-between items-baseline">
+          <span class="brand-font text-base">Total (COD)</span>
+          <span class="brand-font text-2xl"><%= formatBDT(order.totalAmount) %></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+    <a href="/track/<%= order.orderNumber %>" class="btn btn-primary">
+      Track your order
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+    </a>
+    <a href="/" class="btn btn-ghost">Continue shopping</a>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

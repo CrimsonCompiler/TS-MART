@@ -1,0 +1,33 @@
+<%- include('partials/header', { title: 'Track Order — GlamBD' }) %>
+
+<section class="container-page py-12 max-w-xl">
+  <div class="text-center">
+    <p class="label-eyebrow justify-center"><span class="dot"></span> Order lookup</p>
+    <h1 class="mt-3 brand-font text-3xl sm:text-4xl">Track your order</h1>
+    <p class="serif-quote text-lg mt-3" style="color: var(--ink-soft);">Enter the order number we sent you after checkout.</p>
+  </div>
+
+  <form action="/track" method="get" class="mt-8 card p-6 sm:p-8">
+    <label class="label-eyebrow block mb-2"><span class="dot"></span> Order number</label>
+    <input
+      type="text"
+      name="orderNumber"
+      value="<%= orderNumber %>"
+      placeholder="TSM-YYYYMMDD-XXXXX"
+      required
+      class="field mono"
+    />
+    <button type="submit" class="btn btn-primary btn-block mt-5">Track order</button>
+    <hr class="rule my-5" />
+    <p class="mono text-[10px] tracking-[0.2em] uppercase leading-relaxed text-center" style="color: var(--ink-muted);">
+      Format · TSM-DATE-RANDOM<br />
+      Example · TSM-20250923-A1B2C
+    </p>
+  </form>
+
+  <p class="mt-6 text-center text-sm" style="color: var(--ink-soft);">
+    Can't find it? <a href="mailto:hello@glambd.bd" class="link">Email us</a> — we keep every order on file.
+  </p>
+</section>
+
+<%- include('partials/footer') %>

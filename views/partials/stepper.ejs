@@ -1,0 +1,35 @@
+<%
+const STEPS = [
+  { num: 1, label: 'Cart' },
+  { num: 2, label: 'Checkout' },
+  { num: 3, label: 'Confirmation' },
+];
+const current = Number(step) || 1;
+%>
+<nav class="mt-8" aria-label="Order progress">
+  <ol class="card flex items-stretch w-full overflow-hidden" style="border-radius: var(--r-md);">
+    <% STEPS.forEach(function(s, idx) { %>
+      <li class="flex-1 flex items-center gap-3 px-4 sm:px-6 py-4 <%= idx < STEPS.length - 1 ? '' : '' %>"
+          style="<%= idx < STEPS.length - 1 ? 'border-right: 1px solid var(--line);' : '' %>">
+        <span class="inline-flex items-center justify-center w-7 h-7 mono text-xs tracking-wider flex-shrink-0"
+              style="<%
+                if (s.num < current)   { %>background: var(--ink); color: #fff; border-radius: 4px;<% }
+                else if (s.num === current) { %>background: var(--bg-alt); color: var(--ink); border: 1px solid var(--ink); border-radius: 4px;<% }
+                else { %>background: var(--bg); color: var(--ink-muted); border: 1px solid var(--line-strong); border-radius: 4px;<% }
+              %>">
+          <% if (s.num < current) { %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+          <% } else { %>
+            <%= s.num %>
+          <% } %>
+        </span>
+        <div class="flex flex-col leading-tight">
+          <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">Step <%= s.num %></span>
+          <span class="text-sm font-medium" style="color: <%= s.num <= current ? 'var(--ink)' : 'var(--ink-muted)' %>;">
+            <%= s.label %>
+          </span>
+        </div>
+      </li>
+    <% }); %>
+  </ol>
+</nav>

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>" />
+  <title><%= typeof title !== 'undefined' ? title : 'GlamBD' %></title>
+
+  <!-- Tailwind utility classes (Play CDN). Acceptable for low-traffic demos;
+       for high-traffic production, replace with a built stylesheet. -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+Bengali:wght@400;500;600;700&family=Noto+Sans+Bengali:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <%- include('styles') %>
+</head>
+<body class="min-h-screen flex flex-col" style="background: var(--bg); color: var(--ink);">
+
+  <!-- Announcement bar -->
+  <div style="background: var(--ink); color: #fff;">
+    <div class="container-page py-2 flex items-center justify-center gap-6 sm:gap-10 flex-wrap mono text-[11px] tracking-[0.2em] uppercase">
+      <span class="inline-flex items-center gap-2">
+        <span class="inline-block w-1.5 h-1.5 rounded-full" style="background: #fff;"></span>
+        Cash on delivery
+      </span>
+      <span class="inline-flex items-center gap-2 opacity-80">
+        <span class="inline-block w-1.5 h-1.5 rounded-full" style="background: #fff;"></span>
+        Authentic brands
+      </span>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header style="background: var(--bg); border-bottom: 1px solid var(--line);">
+    <div class="container-page py-4 flex items-center justify-between gap-4">
+
+      <!-- Logo -->
+      <a href="/" class="flex items-baseline gap-2 flex-shrink-0">
+        <span class="brand-font text-2xl tracking-tight">Glam<span style="color: var(--ink-soft);">BD</span></span>
+        <span class="hidden md:inline mono text-[10px] tracking-[0.25em] uppercase" style="color: var(--ink-muted);">est. 2025</span>
+      </a>
+
+      <!-- Center nav -->
+      <nav class="flex items-center gap-1">
+        <%
+          const isActive = (p) => {
+            if (!currentPath) return false;
+            if (p === '/') return currentPath === '/';
+            return currentPath === p || currentPath.startsWith(p + '/');
+          };
+        %>
+        <a href="/"
+           class="hidden sm:inline-block px-3 py-1.5 text-sm font-medium border-b-2 <%= isActive('/') ? '' : '' %>"
+           style="border-color: <%= isActive('/') ? 'var(--ink)' : 'transparent' %>; color: <%= isActive('/') ? 'var(--ink)' : 'var(--ink-soft)' %>;">
+          Shop
+        </a>
+        <a href="/track"
+           class="px-3 py-1.5 text-sm font-medium border-b-2"
+           style="border-color: <%= isActive('/track') ? 'var(--ink)' : 'transparent' %>; color: <%= isActive('/track') ? 'var(--ink)' : 'var(--ink-soft)' %>;">
+          Track
+        </a>
+      </nav>
+
+      <!-- Right actions -->
+      <div class="flex items-center gap-2">
+        <button type="button" aria-label="Search" class="icon-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"/></svg>
+        </button>
+        <a href="/cart" class="btn btn-soft" style="padding-left: 1rem; padding-right: 1rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 01-1.12-1.243l1.264-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/></svg>
+          <span class="hidden sm:inline">Cart</span>
+          <% if (cartCount) { %>
+            <span class="inline-flex items-center justify-center min-w-[20px] h-5 px-1.5 mono text-[10px]"
+                  style="background: var(--ink); color: #fff; border-radius: 4px;">
+              <%= cartCount %>
+            </span>
+          <% } %>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Flash -->
+  <% if (typeof flash !== 'undefined' && flash) { %>
+    <div class="border-b" style="border-color: var(--line); background: <%= flash.kind === 'error' ? 'var(--danger)' : 'var(--ok)' %>; color: #fff;">
+      <div class="container-page py-3 flex items-center justify-between gap-4">
+        <p class="mono text-[11px] tracking-[0.2em] uppercase"><%= flash.message %></p>
+        <button onclick="this.parentElement.parentElement.remove()" class="mono text-[11px] tracking-[0.2em] uppercase opacity-80 hover:opacity-100">Dismiss</button>
+      </div>
+    </div>
+  <% } %>
+
+  <main class="flex-1">

@@ -1,0 +1,115 @@
+<%- include('partials/header', { title: 'Order ' + order.orderNumber + ' — GlamBD' }) %>
+
+<section class="container-page py-10">
+  <a href="/track" class="mono text-[10px] tracking-[0.2em] uppercase inline-flex items-center gap-2 hover:text-[var(--ink)]" style="color: var(--ink-muted);">
+    <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18"/></svg>
+    Track another order
+  </a>
+
+  <div class="mt-6 pb-6 border-b" style="border-color: var(--line);">
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+      <div>
+        <p class="label-eyebrow"><span class="dot"></span> Order</p>
+        <h1 class="mt-2 brand-font text-3xl sm:text-4xl"><%= order.orderNumber %></h1>
+        <p class="mono text-[11px] tracking-[0.2em] uppercase mt-3" style="color: var(--ink-muted);">
+          Placed <%= new Date(order.createdAt).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
+        </p>
+      </div>
+      <div class="text-left sm:text-right">
+        <p class="label-eyebrow">Current status</p>
+        <p class="brand-font text-2xl mt-2" style="color: <%= order.status === 'Delivered' ? 'var(--ok)' : 'var(--ink)' %>;"><%= order.status %></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Timeline -->
+  <div class="mt-6 card p-6 sm:p-8">
+    <p class="label-eyebrow mb-5"><span class="dot"></span> Delivery timeline</p>
+    <ol class="grid grid-cols-1 sm:grid-cols-5">
+      <% stageStates.forEach(function(stage, idx) { %>
+        <li class="relative flex flex-col <%= idx < stageStates.length - 1 ? 'sm:border-r' : '' %> p-4 sm:p-5"
+            style="border-color: var(--line);">
+
+          <% if (idx < stageStates.length - 1) { %>
+            <span class="hidden sm:block absolute top-[2.4rem] h-px"
+                  style="left: 50%; right: -50%; background: <%= stage.isPast || stage.isCurrent ? 'var(--ink)' : 'var(--line-strong)' %>;"></span>
+          <% } %>
+
+          <span class="relative z-10 inline-flex items-center justify-center w-10 h-10 mono text-sm flex-shrink-0"
+                style="<%
+                  if (stage.isPast)    { %>background: var(--ink); color: #fff;<% }
+                  else if (stage.isCurrent) { %>background: var(--bg); color: var(--ink); border: 1.5px solid var(--ink);<% }
+                  else { %>background: var(--bg); border: 1px solid var(--line-strong); color: var(--ink-muted);<% }
+                %>">
+            <% if (stage.isPast) { %>
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"/></svg>
+            <% } else { %>
+              <%= String(idx + 1).padStart(2, '0') %>
+            <% } %>
+          </span>
+
+          <p class="mt-3 brand-font text-base leading-snug"
+             style="color: <%= stage.isPast || stage.isCurrent ? 'var(--ink)' : 'var(--ink-muted)' %>;">
+            <%= stage.label %>
+          </p>
+          <p class="mono text-[10px] tracking-[0.2em] uppercase mt-1" style="color: var(--ink-muted);">
+            <% if (stage.timestamp) { %>
+              <%= new Date(stage.timestamp).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) %>
+            <% } else { %>
+              — pending
+            <% } %>
+          </p>
+        </li>
+      <% }); %>
+    </ol>
+  </div>
+
+  <!-- Order details -->
+  <div class="mt-6 grid md:grid-cols-2 gap-5">
+    <div class="card p-6">
+      <p class="label-eyebrow mb-3"><span class="dot"></span> Delivery address</p>
+      <address class="not-italic text-sm leading-relaxed" style="color: var(--ink);">
+        <%= order.customer.name %><br />
+        <%= order.customer.house %><br />
+        <%= order.customer.district %><br />
+        <%= order.customer.division %> — <%= order.customer.postcode %><br />
+        <%= order.customer.country %>
+        <hr class="rule my-3" />
+        <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">M</span> <%= order.customer.phone %><br />
+        <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">E</span> <%= order.customer.email %>
+      </address>
+      <hr class="rule my-4" />
+      <p class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">Payment · <span style="color: var(--ink);">Cash on delivery</span></p>
+    </div>
+
+    <div class="card p-6">
+      <p class="label-eyebrow mb-3"><span class="dot"></span> Items</p>
+      <ul class="text-sm">
+        <% order.items.forEach(function(item) { %>
+          <li class="py-2.5 flex items-center justify-between gap-3 border-b last:border-b-0" style="border-color: var(--line);">
+            <div class="flex items-center gap-3 min-w-0">
+              <% if (item.image) { %><img src="<%= item.image %>" alt="<%= item.name %>" class="w-10 h-10 object-cover flex-shrink-0" style="background: var(--bg-alt);" /><% } %>
+              <span class="truncate"><%= item.name %> <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">&times; <%= item.qty %></span></span>
+            </div>
+            <span class="whitespace-nowrap"><%= formatBDT(item.price * item.qty) %></span>
+          </li>
+        <% }); %>
+      </ul>
+      <hr class="rule my-4" />
+      <dl class="text-sm space-y-1.5">
+        <div class="flex justify-between"><dt class="muted">Subtotal</dt><dd><%= formatBDT(order.totalAmount - (order.shipping || 0)) %></dd></div>
+        <div class="flex justify-between">
+          <dt class="muted">Delivery <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">(<%= order.customer.division === 'Dhaka' ? 'inside Dhaka' : 'outside Dhaka' %>)</span></dt>
+          <dd><%= formatBDT(order.shipping || 0) %></dd>
+        </div>
+      </dl>
+      <hr class="rule my-4" />
+      <div class="flex justify-between items-baseline">
+        <span class="brand-font text-base">Total</span>
+        <span class="brand-font text-xl"><%= formatBDT(order.totalAmount) %></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/footer') %>

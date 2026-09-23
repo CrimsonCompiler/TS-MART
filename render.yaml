@@ -1,0 +1,31 @@
+# Render Blueprint — declarative service definition.
+# `render blueprint launch` reads this and creates the service.
+#
+# MongoDB Atlas is NOT created here — provision it separately, then paste
+# the SRV URI into MONGODB_URI in the Render dashboard.
+
+services:
+  - type: web
+    name: ts-mart
+    runtime: docker
+    plan: starter           # Free tier works; scale up for traffic
+    region: singapore       # closest to Bangladesh; pick your preference
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: MONGODB_URI
+        sync: false         # Set this in the Render dashboard, never commit
+      - key: SESSION_SECRET
+        generateValue: true # Render generates a random secret on first deploy
+      - key: STATUS_INTERVALS_SECONDS
+        value: 30
+      # Optional — only set if you want a separate DB/cluster for sessions.
+      # - key: MONGO_SESSION_URI
+      #   sync: false

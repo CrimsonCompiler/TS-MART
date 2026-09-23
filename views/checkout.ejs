@@ -1,0 +1,153 @@
+<%- include('partials/header', { title: 'Checkout — GlamBD' }) %>
+
+<section class="container-page py-10">
+  <%- include('partials/stepper', { step: 2 }) %>
+
+  <div class="mt-8 pb-4 border-b" style="border-color: var(--line);">
+    <p class="label-eyebrow"><span class="dot"></span> Step 02 · Delivery details</p>
+    <h1 class="mt-2 brand-font text-3xl sm:text-4xl">Checkout</h1>
+  </div>
+
+  <div class="mt-8 grid lg:grid-cols-3 gap-6">
+    <form action="/checkout/submit" method="post" class="lg:col-span-2 space-y-5">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+      <!-- CONTACT -->
+      <fieldset class="card p-6 sm:p-8">
+        <legend class="px-2 brand-font text-lg">01 · Contact</legend>
+        <hr class="rule mt-2 mb-6" />
+
+        <div class="grid sm:grid-cols-2 gap-5">
+          <div>
+            <label class="label-eyebrow block mb-2">Full name</label>
+            <input type="text" name="name" value="<%= form.name || '' %>" class="field <%= errors.name ? 'is-error' : '' %>" style="<%= errors.name ? 'border-color: var(--danger);' : '' %>" />
+            <% if (errors.name) { %><p class="mono text-[10px] tracking-[0.2em] uppercase mt-2" style="color: var(--danger);"><%= errors.name %></p><% } %>
+          </div>
+          <div>
+            <label class="label-eyebrow block mb-2">Mobile</label>
+            <input type="tel" name="phone" placeholder="01XXXXXXXXX" value="<%= form.phone || '' %>" class="field" style="<%= errors.phone ? 'border-color: var(--danger);' : '' %>" />
+            <% if (errors.phone) { %><p class="mono text-[10px] tracking-[0.2em] uppercase mt-2" style="color: var(--danger);"><%- errors.phone %></p><% } else { %><p class="mono text-[10px] tracking-[0.2em] uppercase mt-2" style="color: var(--ink-muted);">BD mobile only — +880 also accepted.</p><% } %>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="label-eyebrow block mb-2">Email</label>
+            <input type="email" name="email" value="<%= form.email || '' %>" class="field" style="<%= errors.email ? 'border-color: var(--danger);' : '' %>" />
+            <% if (errors.email) { %><p class="mono text-[10px] tracking-[0.2em] uppercase mt-2" style="color: var(--danger);"><%= errors.email %></p><% } %>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- SHIPPING -->
+      <fieldset class="card p-6 sm:p-8">
+        <legend class="px-2 brand-font text-lg">02 · Shipping address</legend>
+        <hr class="rule mt-2 mb-6" />
+
+        <div class="space-y-5">
+          <div>
+            <label class="label-eyebrow block mb-2">House / street / area</label>
+            <textarea name="house" rows="2" placeholder="House 12, Road 7, Block C, Banani" class="field" style="<%= errors.house ? 'border-color: var(--danger);' : '' %>"><%= form.house || '' %></textarea>
+            <% if (errors.house) { %><p class="mono text-[10px] tracking-[0.2em] uppercase mt-2" style="color: var(--danger);"><%= errors.house %></p><% } %>
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-5">
+            <div>
+              <label class="label-eyebrow block mb-2">Division</label>
+              <select name="division" id="divisionSelect"
+                      data-districts='<%- encodeJSONForAttr(districtsByDivision) %>'
+                      data-dhaka-fee="<%= dhakaFee %>"
+                      data-outside-fee="<%= outsideFee %>"
+                      data-dhaka-label="<%= formatBDT(dhakaFee) %> Dhaka"
+                      data-outside-label="<%= formatBDT(outsideFee) %> outside"
+                      class="field" style="<%= errors.division ? 'border-color: var(--danger);' : '' %>">
+                <option value="">Select division</option>
+                <% divisions.forEach(function(d) { %>
+                  <option value="<%= d %>" <%= form.division === d ? 'selected' : '' %>><%= d %></option>
+                <% }); %>
+              </select>
+              <% if (errors.division) { %><p class="mono text-[10px] tracking-[0.2em] uppercase mt-2" style="color: var(--danger);"><%= errors.division %></p><% } %>
+            </div>
+
+            <div>
+              <label class="label-eyebrow block mb-2">District</label>
+              <select name="district" id="districtSelect" class="field" style="<%= errors.district ? 'border-color: var(--danger);' : '' %>">
+                <option value="">Select district</option>
+              </select>
+              <input type="hidden" id="selectedDistrict" value="<%= form.district || '' %>" />
+              <% if (errors.district) { %><p class="mono text-[10px] tracking-[0.2em] uppercase mt-2" style="color: var(--danger);"><%= errors.district %></p><% } %>
+            </div>
+
+            <div>
+              <label class="label-eyebrow block mb-2">Postcode</label>
+              <input type="text" name="postcode" value="<%= form.postcode || '' %>" maxlength="4" placeholder="4 digits" class="field" style="<%= errors.postcode ? 'border-color: var(--danger);' : '' %>" />
+              <% if (errors.postcode) { %><p class="mono text-[10px] tracking-[0.2em] uppercase mt-2" style="color: var(--danger);"><%= errors.postcode %></p><% } %>
+            </div>
+
+            <div>
+              <label class="label-eyebrow block mb-2">Country</label>
+              <input type="text" value="Bangladesh" disabled class="field" style="background: var(--bg-alt); color: var(--ink-muted);" />
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <!-- PAYMENT -->
+      <fieldset class="card p-6 sm:p-8">
+        <legend class="px-2 brand-font text-lg">03 · Payment</legend>
+        <hr class="rule mt-2 mb-6" />
+        <div class="flex items-center gap-4 p-5 card" style="background: var(--bg-alt);">
+          <span class="w-10 h-10 inline-flex items-center justify-center mono text-base flex-shrink-0" style="background: var(--bg); color: var(--ink); border: 1px solid var(--line-strong);">৳</span>
+          <div>
+            <p class="brand-font text-base">Cash on delivery</p>
+            <p class="mono text-[10px] tracking-[0.2em] uppercase mt-1" style="color: var(--ink-muted);">Pay in cash anywhere in Bangladesh · no advance</p>
+          </div>
+        </div>
+      </fieldset>
+
+      <button type="submit" class="btn btn-primary btn-block btn-lg">Place order</button>
+      <p class="mono text-[10px] tracking-[0.2em] uppercase text-center" style="color: var(--ink-muted);">
+        By placing this order you agree to pay on delivery.
+      </p>
+    </form>
+
+    <!-- SUMMARY -->
+    <aside class="card p-6 h-fit lg:sticky lg:top-28">
+      <p class="label-eyebrow"><span class="dot"></span> Your order</p>
+      <h2 class="brand-font text-2xl mt-2">Summary</h2>
+      <hr class="rule my-5" />
+
+      <ul class="space-y-4 text-sm">
+        <% cart.forEach(function(item, idx) { %>
+          <li class="flex justify-between gap-3">
+            <span>
+              <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">No.&nbsp;<%- idx + 1 %></span><br />
+              <span style="color: var(--ink);"><%= item.name %></span>
+              <span class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);"> &times; <%= item.qty %></span>
+            </span>
+            <span class="whitespace-nowrap"><%= formatBDT(item.price * item.qty) %></span>
+          </li>
+        <% }); %>
+      </ul>
+
+      <hr class="rule my-5" />
+
+      <dl class="space-y-2 text-sm">
+        <div class="flex justify-between"><dt class="muted">Subtotal</dt><dd>৳<%= cartTotals.subtotal.toLocaleString('en-IN') %></dd></div>
+        <div class="flex justify-between">
+          <dt class="muted">Delivery <span id="deliveryHint" class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">(<%= formatBDT(dhakaFee) %> Dhaka · <%= formatBDT(outsideFee) %> outside)</span></dt>
+          <dd id="deliveryFee"><%= cartTotals.shipping != null ? formatBDT(cartTotals.shipping) : '--' %></dd>
+        </div>
+      </dl>
+
+      <hr class="rule my-5" />
+
+      <div class="flex justify-between items-baseline">
+        <span class="brand-font text-base">Total</span>
+        <span id="grandTotal" data-subtotal="<%= cartTotals.subtotal %>" class="brand-font text-2xl"><%= formatBDT(cartTotals.total) %></span>
+      </div>
+      <p class="mono text-[10px] tracking-[0.2em] uppercase mt-2" style="color: var(--ink-muted);">Cash on delivery</p>
+    </aside>
+  </div>
+</section>
+
+<script src="/js/checkout.js" defer></script>
+
+<%- include('partials/footer') %>

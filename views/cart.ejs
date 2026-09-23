@@ -1,0 +1,96 @@
+<%- include('partials/header', { title: 'Your Cart — GlamBD' }) %>
+
+<section class="container-page py-10">
+  <%- include('partials/stepper', { step: 1 }) %>
+
+  <div class="mt-8 flex items-end justify-between gap-4 pb-4 border-b" style="border-color: var(--line);">
+    <h1 class="brand-font text-3xl sm:text-4xl">Your cart</h1>
+    <p class="mono text-[11px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">
+      <%= cartTotals.count %> <%= cartTotals.count === 1 ? 'piece' : 'pieces' %>
+    </p>
+  </div>
+
+  <% if (cart.length === 0) { %>
+    <div class="mt-10 card p-12 text-center">
+      <p class="label-eyebrow mb-3"><span class="dot"></span> Cart is empty</p>
+      <p class="brand-font text-2xl mt-2">Nothing in your bag yet.</p>
+      <p class="text-sm mt-3" style="color: var(--ink-soft);">A few good things are waiting in the shop.</p>
+      <a href="/" class="btn btn-primary mt-7">
+        Browse the shop
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+      </a>
+    </div>
+  <% } else { %>
+    <div class="mt-10 grid lg:grid-cols-3 gap-6">
+      <!-- Lines -->
+      <div class="lg:col-span-2 card overflow-hidden">
+        <% cartTotals.lines.forEach(function(item, idx) { %>
+          <div class="flex gap-5 p-5 sm:p-6 <%= idx < cartTotals.lines.length - 1 ? 'border-b' : '' %>" style="border-color: var(--line);">
+            <a href="/product/<%= item.productId %>" class="w-24 h-24 sm:w-28 sm:h-28 flex-shrink-0" style="background: var(--bg-alt);">
+              <img src="<%= item.image %>" alt="<%= item.name %>" class="w-full h-full object-cover" />
+            </a>
+            <div class="flex-1 min-w-0 flex flex-col">
+              <p class="mono text-[10px] tracking-[0.2em] uppercase" style="color: var(--ink-muted);">No. <%= String(idx + 1).padStart(2, '0') %></p>
+              <a href="/product/<%= item.productId %>" class="brand-font text-lg leading-snug line-clamp-2 mt-1 hover:text-[var(--ink-soft)]"><%= item.name %></a>
+              <p class="mono text-xs mt-2" style="color: var(--ink-soft);"><%= formatBDT(item.price) %> · each</p>
+
+              <div class="mt-auto pt-4 flex items-center gap-3">
+                <form action="/cart/update" method="post" class="contents">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <input type="hidden" name="productId" value="<%= item.productId %>" />
+                  <input type="hidden" name="qty" value="<%= item.qty - 1 %>" />
+                  <button type="submit" aria-label="Decrease quantity" class="w-8 h-8 border mono text-base leading-none" style="border-color: var(--line-strong); color: var(--ink);">−</button>
+                </form>
+                <span class="w-10 h-10 inline-flex items-center justify-center mono text-sm" style="background: var(--bg-alt); color: var(--ink);"><%= item.qty %></span>
+                <form action="/cart/update" method="post" class="contents">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <input type="hidden" name="productId" value="<%= item.productId %>" />
+                  <input type="hidden" name="qty" value="<%= item.qty + 1 %>" />
+                  <button type="submit" aria-label="Increase quantity" class="w-8 h-8 border mono text-base leading-none" style="border-color: var(--line-strong); color: var(--ink);">+</button>
+                </form>
+                <form action="/cart/remove" method="post" class="ml-auto">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                  <input type="hidden" name="productId" value="<%= item.productId %>" />
+                  <button type="submit" class="mono text-[10px] tracking-[0.2em] uppercase underline-offset-4 hover:underline" style="color: var(--ink-muted);">Remove</button>
+                </form>
+              </div>
+            </div>
+            <p class="brand-font text-lg text-right whitespace-nowrap self-start"><%= formatBDT(item.lineTotal) %></p>
+          </div>
+        <% }); %>
+      </div>
+
+      <!-- Summary -->
+      <aside class="card p-6 h-fit lg:sticky lg:top-28">
+        <p class="label-eyebrow"><span class="dot"></span> Order summary</p>
+        <h2 class="brand-font text-3xl mt-2"><%= formatBDT(cartTotals.total) %></h2>
+        <p class="mono text-[10px] tracking-[0.2em] uppercase mt-1" style="color: var(--ink-muted);">incl. taxes</p>
+
+        <hr class="rule my-5" />
+
+        <dl class="space-y-2.5 text-sm">
+          <div class="flex justify-between">
+            <dt class="muted">Subtotal</dt>
+            <dd><%= formatBDT(cartTotals.subtotal) %></dd>
+          </div>
+          <div class="flex justify-between">
+            <dt class="muted">Delivery</dt>
+            <dd style="color: var(--ink-muted);">Calculated next</dd>
+          </div>
+        </dl>
+
+        <hr class="rule my-5" />
+
+        <a href="/checkout" class="btn btn-primary btn-block">Proceed to checkout</a>
+
+        <p class="mt-4 mono text-[10px] tracking-[0.2em] uppercase leading-relaxed" style="color: var(--ink-muted);">
+          Delivery: <%= formatBDT(dhakaFee) %> Dhaka<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= formatBDT(outsideFee) %> elsewhere<br />
+          Cash on delivery only
+        </p>
+      </aside>
+    </div>
+  <% } %>
+</section>
+
+<%- include('partials/footer') %>
